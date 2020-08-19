@@ -18,3 +18,25 @@ antlr4 LuaLexer.g4 LuaParser.g4
 ## Railroad Diagrams
 
 See the grammar in the form of railroad diagrams [here](https://stevenjohnstone.github.io/lua-grammar/).
+
+## Examples
+### Generating a Callgraph
+
+The following is a callgraph for [inspect.lua](https://github.com/kikito/inspect.lua):
+
+![callgraph](examples/cpp/callgraph/inspect.png).
+
+On Linux with clang, graphviz and antlr4 [installed](https://www.antlr.org/):
+
+```shell
+cd examples/cpp/dot
+make
+```
+
+Then
+
+```shell
+ wget -q https://raw.githubusercontent.com/kikito/inspect.lua/master/inspect.lua -O -|./callgraph |dot -T png -o inspect.png
+ ```
+
+
