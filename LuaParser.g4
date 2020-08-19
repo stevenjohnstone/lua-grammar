@@ -1,8 +1,8 @@
 /*
  BSD License
  
- Copyright (c) 2013, Kazunori Sakamoto Copyright (c) 2016, Alexander Alexeev 2020, Steven Johnstone
- All rights reserved.
+ Copyright (c) 2013, Kazunori Sakamoto Copyright (c) 2016, Alexander Alexeev
+ (c) 2020, Steven Johnstone All rights reserved.
  
 
  
