@@ -14,3 +14,7 @@ As for other ANTLRv4 grammars:
 ```shell
 antlr4 LuaLexer.g4 LuaParser.g4
 ```
+
+## Railroad Diagrams
+
+See the grammar in the form of railroad diagrams [here](https://stevenjohnstone.github.io/lua-grammar/).
