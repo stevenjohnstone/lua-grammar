@@ -109,6 +109,7 @@ exp:
 	| string
 	| DOTS
 	| functiondef
+	| functioncall
 	| prefixexp
 	| tableconstructor
 	| <assoc = right> exp operatorPower exp
