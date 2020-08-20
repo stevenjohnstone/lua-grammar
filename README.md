@@ -39,4 +39,21 @@ Then
  wget -q https://raw.githubusercontent.com/kikito/inspect.lua/master/inspect.lua -O -|./callgraph |dot -T png -o inspect.png
  ```
 
+ ## Dependency graph
 
+ The following is an attempt at a dependency graph for Luarocks, as installed on my system:
+
+ ![dependency](examples/cpp/deps/deps.png)
+
+On Linux with clang, graphviz and antlr4 [installed](https://www.antlr.org/):
+
+```shell
+cd examples/cpp/deps
+make
+```
+
+Then
+
+```shell
+./deps /usr/bin/luarocks | neato -T png -o deps.png
+```
