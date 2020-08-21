@@ -24,7 +24,7 @@ class symbol_listener : public LuaParserBaseListener {
   Scope &global_scope_;
   CommonTokenStream &tokens_;
   std::stack<Scope *> parent_;
-  std::set<std::string> for_vars_;
+  std::set<std::string> vars_;
 
 public:
   symbol_listener(Scope &global_scope, CommonTokenStream &tokens)
@@ -37,10 +37,10 @@ public:
     scope->source = tokens_.getText(ctx->start, ctx->stop);
     scope->parent = parent_.top();
     scope->parent->children.push_back(scope);
-    for (auto const& var : for_vars_) {
+    for (auto const &var : vars_) {
       scope->symbols.insert(var);
     }
-    for_vars_.clear();
+    vars_.clear();
     parent_.push(scope);
   }
 
@@ -63,26 +63,41 @@ public:
   }
 
   void enterNumericforstat(LuaParser::NumericforstatContext *ctx) override {
-    for_vars_.insert(ctx->NAME()->getSymbol()->getText());
+    vars_.insert(ctx->NAME()->getSymbol()->getText());
   }
 
   void exitNumericforstat(LuaParser::NumericforstatContext *ctx) override {
-    for_vars_.clear();
+    vars_.clear();
   }
 
   void enterGenericforstat(LuaParser::GenericforstatContext *ctx) override {
-    for (auto const& name : ctx->namelist()->NAME()) {
-      for_vars_.insert(name->getSymbol()->getText());
+    for (auto const &name : ctx->namelist()->NAME()) {
+      vars_.insert(name->getSymbol()->getText());
     }
   }
 
   void exitGenericforstat(LuaParser::GenericforstatContext *ctx) override {
-    for_vars_.clear();
+    vars_.clear();
   }
 
-  void enterLocalfunctionstat(LuaParser::LocalfunctionstatContext *ctx) override {
+  void
+  enterLocalfunctionstat(LuaParser::LocalfunctionstatContext *ctx) override {
     parent_.top()->symbols.insert(ctx->NAME()->getSymbol()->getText());
   }
+
+  void enterFuncbody(LuaParser::FuncbodyContext *ctx) override {
+    auto parlist = ctx->parlist();
+    if (parlist) {
+      auto namelist = parlist->namelist();
+      if (namelist) {
+        for (auto const &name : namelist->NAME()) {
+          vars_.insert(name->getSymbol()->getText());
+        }
+      }
+    }
+  }
+
+  void exitFuncbody(LuaParser::FuncbodyContext *ctx) override { vars_.clear(); }
 
   void enterFunctionstat(LuaParser::FunctionstatContext *ctx) override {
     auto funcname = ctx->funcname();
@@ -92,11 +107,11 @@ public:
 
     std::string namestr;
 
-    for (auto const& name: funcname->NAME()) {
+    for (auto const &name : funcname->NAME()) {
       namestr += name->getSymbol()->getText();
       if (dot_count) {
         namestr += ".";
-        dot_count --;
+        dot_count--;
       } else if (has_colon) {
         namestr += ":";
         has_colon = false;
@@ -107,7 +122,7 @@ public:
 
   void enterLocalvarstat(LuaParser::LocalvarstatContext *ctx) override {
     auto alist = ctx->attnamelist();
-    auto& parent = parent_.top();
+    auto &parent = parent_.top();
     for (auto const &name : alist->NAME()) {
       parent->symbols.insert(name->getSymbol()->getText());
     }
@@ -115,7 +130,7 @@ public:
 };
 
 static void dump(Scope *s) {
-  std::cerr << "scope: " << std::endl << s->source << std::endl;
+  std::cerr << "scope: " << std::endl << std::quoted(s->source) << std::endl;
   std::cerr << "symbols: ";
   for (auto const &symbol : s->symbols) {
     std::cerr << symbol << " ";
