@@ -28,39 +28,30 @@ public:
       : current_package_(current_package), new_deps_(new_deps) {}
 
   void exitFunctioncall(LuaParser::FunctioncallContext *ctx) override {
-    auto var = ctx->varOrExp()->var();
-    if (!var) {
+    auto variable = ctx->variable();
+    if (!variable) {
       return;
     }
     std::string new_dep;
 
-    auto fn_name = var->NAME()->getSymbol()->getText();
+    auto fn_name = variable->getText();
     if (fn_name == "pcall") {
       auto explist = ctx->nameAndArgs()[0]->args()->explist();
       if (!explist || explist->exp().size() != 2) {
         return;
       }
 
-      auto prefixexp = explist->exp()[0]->prefixexp();
-      if (!prefixexp) {
-        return;
-      }
-      auto var = prefixexp->varOrExp()->var();
-      if (!var) {
+      auto variable= explist->exp()[0]->variable();
+      if (!variable) {
         return;
       }
 
-      auto name = var->NAME();
-      if (!name) {
-        return;
-      }
-
-      auto pcall_fn = name->getSymbol()->getText();
+      auto pcall_fn = variable->getText();
       if (pcall_fn != "require") {
         return;
       }
 
-      auto string = explist->exp()[1]->string();
+      auto string = explist->exp()[1]->lstring();
       if (!string) {
         return;
       }
@@ -70,13 +61,13 @@ public:
       }
       new_dep = token->getSymbol()->getText();
     } else if (fn_name == "require") {
-      auto string = ctx->nameAndArgs()[0]->args()->string();
+      auto string = ctx->nameAndArgs()[0]->args()->lstring();
       if (!string) {
         auto explist = ctx->nameAndArgs()[0]->args()->explist();
         if (!explist) {
           return;
         }
-        string = explist->exp()[0]->string();
+        string = explist->exp()[0]->lstring();
 
         if (!string) {
           return;

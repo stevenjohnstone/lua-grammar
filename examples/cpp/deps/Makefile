@@ -12,7 +12,7 @@ deps: dirs antlr4 main.cpp
 	$(CC) $(CCARGS) main.cpp $(GENERATED)/LuaParserBaseListener.cpp $(GENERATED)/LuaParserListener.cpp $(GENERATED)/LuaParser.cpp $(GENERATED)/LuaLexer.cpp -o $@ 
 
 antlr4:
-	java -jar /usr/local/lib/antlr-4.8-complete.jar -Dlanguage=Cpp -o $(GENERATED) $(GRAMMARDIR)/LuaLexer.g4 $(GRAMMARDIR)/LuaParser.g4
+	java -jar /usr/local/lib/antlr-4.9-complete.jar -Dlanguage=Cpp -o $(GENERATED) $(GRAMMARDIR)/LuaLexer.g4 $(GRAMMARDIR)/LuaParser.g4
 
 dirs:
 	mkdir -p $(OUTPUT) 

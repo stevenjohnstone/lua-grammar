@@ -55,8 +55,8 @@ block: stat* retstat?;
 
 stat:
 	SEMICOLON
-	| varstat
-	| functioncall
+	| variablestat
+	| variable
 	| label
 	| breakstat
 	| gotostat
@@ -68,7 +68,7 @@ stat:
 	| genericforstat
 	| functionstat
 	| localfunctionstat
-	| localvarstat;
+	| localvariablestat;
 
 breakstat: BREAK;
 gotostat: GOTO NAME;
@@ -82,8 +82,8 @@ numericforstat:
 	FOR NAME EQUALS exp COMMA exp (COMMA exp)? DO block END;
 functionstat: FUNCTION funcname funcbody;
 localfunctionstat: LOCAL FUNCTION NAME funcbody;
-localvarstat: LOCAL attnamelist (EQUALS explist)?;
-varstat: varlist EQUALS explist;
+localvariablestat: LOCAL attnamelist (EQUALS explist)?;
+variablestat: variablelist EQUALS explist;
 
 attnamelist: NAME attrib (COMMA NAME attrib)*;
 
@@ -95,7 +95,7 @@ label: DCOLON NAME DCOLON;
 
 funcname: NAME (DOT NAME)* (COLON NAME)?;
 
-varlist: var (COMMA var)*;
+variablelist: variable (COMMA variable)*;
 
 namelist: NAME (COMMA NAME)*;
 
@@ -106,11 +106,10 @@ exp:
 	| FALSE
 	| TRUE
 	| number
-	| string
+	| lstring
 	| DOTS
 	| functiondef
-	| functioncall
-	| prefixexp
+	| variable
 	| tableconstructor
 	| <assoc = right> exp operatorPower exp
 	| operatorUnary exp
@@ -122,19 +121,15 @@ exp:
 	| exp operatorOr exp
 	| exp operatorBitwise exp;
 
-prefixexp: varOrExp nameAndArgs*;
-
-functioncall: varOrExp nameAndArgs+;
-
-varOrExp: var | LPAREN exp RPAREN;
-
-var: (NAME | LPAREN exp RPAREN varSuffix) varSuffix*;
-
-varSuffix: nameAndArgs* (LBRACK exp RBRACK | DOT NAME);
+variable:
+	NAME										# namedvariable
+	| variable (LBRACK exp RBRACK | DOT NAME)	# index
+	| LPAREN exp RPAREN							# parenthesesvariable
+	| variable nameAndArgs+						# functioncall;
 
 nameAndArgs: (COLON NAME)? args;
 
-args: LPAREN explist? RPAREN | tableconstructor | string;
+args: LPAREN explist? RPAREN | tableconstructor | lstring;
 
 functiondef: FUNCTION funcbody;
 
@@ -176,4 +171,4 @@ operatorPower: POWER;
 
 number: INT | HEX | FLOAT | HEX_FLOAT;
 
-string: NORMALSTRING | CHARSTRING | LONGSTRING;
+lstring: NORMALSTRING | CHARSTRING | LONGSTRING;

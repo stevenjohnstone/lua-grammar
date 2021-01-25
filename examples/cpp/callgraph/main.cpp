@@ -44,25 +44,10 @@ public:
   }
 
   void exitFunctioncall(LuaParser::FunctioncallContext *ctx) override {
-    auto varOrExp = ctx->varOrExp();
-    auto var = varOrExp->var();
+    auto variable = ctx->variable();
 
-    std::string name = "anon";
-    if (var && var->NAME()) {
-      name = var->NAME()->getSymbol()->getText();
-      for (auto const &suffix : var->varSuffix()) {
-        for (auto const &nameAndArgs : suffix->nameAndArgs()) {
-          if (nameAndArgs->COLON()) {
-            name += ":";
-            name += nameAndArgs->NAME()->getSymbol()->getText();
-          }
-        }
-        if (suffix->DOT()) {
-          name += ".";
-          name += suffix->NAME()->getSymbol()->getText();
-        }
-      }
-    }
+    std::string name = variable->getText();
+    //std::cerr << "name is " << name << std::endl;
     for (auto const &nameAndArgs : ctx->nameAndArgs()) {
       if (nameAndArgs->COLON()) {
         name += ":";
