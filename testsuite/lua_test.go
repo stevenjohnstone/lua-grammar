@@ -93,6 +93,69 @@ func TestDetectFunctions(t *testing.T) {
 			},
 			want: []fnCall{{receiver: "fn(\"foo\")", args: "\"bar\""}, {receiver: "fn", args: "(\"foo\")"}},
 		},
+		{
+			name: "corner case: calling a function returned by another function",
+			args: args{
+				program: "fn(\"foo\")(\"bar\")",
+			},
+			want: []fnCall{{receiver: "fn(\"foo\")", args: "(\"bar\")"}, {receiver: "fn", args: "(\"foo\")"}},
+		},
+		{
+			name: "basic: commented out function",
+			args: args{
+				program: "--fn()",
+			},
+			want: nil,
+		},
+		{
+			name: "basic: commented out function 2",
+			args: args{
+				program: "fn()--fn2()",
+			},
+			want: []fnCall{{receiver: "fn", args: "()"}},
+		},
+		{
+			name: "basic: commented out arguments",
+			args: args{
+				program: "fn(--[[not_used]])",
+			},
+			want: []fnCall{{receiver: "fn", args: "()"}},
+		},
+		{
+			name: "basic: commented out arguments 2",
+			args: args{
+				program: "fn(--[[not_used]] a)",
+			},
+			want: []fnCall{{receiver: "fn", args: "(a)"}},
+		},
+		{
+			name: "basic: function result as function argument",
+			args: args{
+				program: "fn(a, b, fn2(c))",
+			},
+			want: []fnCall{{receiver: "fn", args: "(a,b,fn2(c))"}, {receiver: "fn2", args: "(c)"}},
+		},
+		{
+			name: "basic: call result of indexing",
+			args: args{
+				program: "t[a](b)",
+			},
+			want: []fnCall{{receiver: "t[a]", args: "(b)"}},
+		},
+		{
+			name: "basic: call result of indexing 2",
+			args: args{
+				program: "t.a(b)",
+			},
+			want: []fnCall{{receiver: "t.a", args: "(b)"}},
+		},
+		{
+			name: "basic: index with function call result",
+			args: args{
+				program: "t[a(b)]",
+			},
+			want: []fnCall{{receiver: "a", args: "(b)"}},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
