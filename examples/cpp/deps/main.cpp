@@ -36,7 +36,7 @@ public:
 
     auto fn_name = variable->getText();
     if (fn_name == "pcall") {
-      auto explist = ctx->nameAndArgs()[0]->args()->explist();
+      auto explist = ctx->nameAndArgs()->args()->explist();
       if (!explist || explist->exp().size() != 2) {
         return;
       }
@@ -61,9 +61,9 @@ public:
       }
       new_dep = token->getSymbol()->getText();
     } else if (fn_name == "require") {
-      auto string = ctx->nameAndArgs()[0]->args()->lstring();
+      auto string = ctx->nameAndArgs()->args()->lstring();
       if (!string) {
-        auto explist = ctx->nameAndArgs()[0]->args()->explist();
+        auto explist = ctx->nameAndArgs()->args()->explist();
         if (!explist) {
           return;
         }

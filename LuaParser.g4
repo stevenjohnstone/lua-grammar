@@ -125,7 +125,7 @@ variable:
 	NAME										# namedvariable
 	| variable (LBRACK exp RBRACK | DOT NAME)	# index
 	| LPAREN exp RPAREN							# parenthesesvariable
-	| variable nameAndArgs+						# functioncall;
+	| variable nameAndArgs						# functioncall;
 
 nameAndArgs: (COLON NAME)? args;
 

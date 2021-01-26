@@ -47,12 +47,9 @@ public:
     auto variable = ctx->variable();
 
     std::string name = variable->getText();
-    //std::cerr << "name is " << name << std::endl;
-    for (auto const &nameAndArgs : ctx->nameAndArgs()) {
-      if (nameAndArgs->COLON()) {
+    if (ctx->nameAndArgs()->COLON()) {
         name += ":";
-        name += nameAndArgs->NAME()->getSymbol()->getText();
-      }
+        name += ctx->nameAndArgs()->NAME()->getSymbol()->getText();
     }
     graph_.insert(std::pair<std::string, std::string>(parent_, name));
     return;

@@ -21,11 +21,7 @@ type testListener struct {
 }
 
 func (tl *testListener) EnterFunctioncall(ctx *parser.FunctioncallContext) {
-	args := ""
-	arguments := ctx.AllNameAndArgs()
-	for _, argument := range arguments {
-		args += argument.GetText()
-	}
+	args := ctx.NameAndArgs().GetText()
 	tl.functionReceivers = append(tl.functionReceivers, fnCall{
 		receiver: ctx.Variable().GetText(),
 		args:     args,
@@ -90,11 +86,18 @@ func TestDetectFunctions(t *testing.T) {
 			},
 			want: []fnCall{{receiver: "a", args: "(b())"}, {receiver: "b", args: "()"}},
 		},
+		{
+			name: "corner case: no parentheses call",
+			args: args{
+				program: "fn(\"foo\") \"bar\"",
+			},
+			want: []fnCall{{receiver: "fn(\"foo\")", args: "\"bar\""}, {receiver: "fn", args: "(\"foo\")"}},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := detectFunctions(tt.args.program); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("DetectFunctions() = %v, want %v", got, tt.want)
+				t.Errorf("DetectFunctions() = %+v, want %+v", got, tt.want)
 			}
 		})
 	}
